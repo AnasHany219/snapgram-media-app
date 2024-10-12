@@ -32,8 +32,8 @@ const SigninForm = () => {
   const form = useForm<z.infer<typeof SigninValidation>>({
     resolver: zodResolver(SigninValidation),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "anashany219@gmail.com",
+      password: "123456789",
     },
   });
 
@@ -47,7 +47,6 @@ const SigninForm = () => {
     if (!session) return toast({ title: "Sign in failed. Please try again." });
 
     const isLoggedIn = await checkAuthUser();
-
     if (isLoggedIn) {
       form.reset();
       navigate("/");
