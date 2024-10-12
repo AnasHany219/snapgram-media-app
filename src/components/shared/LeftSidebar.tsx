@@ -9,8 +9,8 @@ import { useUserContext } from "@/context/AuthContext";
 import { useSignOutAccount } from "@/lib/react-query/queriesAndMutations";
 
 const LeftSidebar = () => {
-  const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { user } = useUserContext();
   const { mutate: signOut, isSuccess } = useSignOutAccount();
 
