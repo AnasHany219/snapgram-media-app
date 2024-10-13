@@ -10,7 +10,10 @@ import { useToast } from "../ui/use-toast";
 import FileUploader from "../shared/FileUploader";
 
 import { PostValidation } from "@/lib/validation";
-import { useCreatePost } from "@/lib/react-query/queriesAndMutations";
+import {
+  useCreatePost,
+  useUpdatePost,
+} from "@/lib/react-query/queriesAndMutations";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,14 +30,19 @@ import { useUserContext } from "@/context/AuthContext";
 
 type PostFormProps = {
   post?: Models.Document;
+  action: "Create" | "Update";
 };
 
-const PostForm = ({ post }: PostFormProps) => {
+const PostForm = ({ post, action }: PostFormProps) => {
   const navigate = useNavigate();
+
   const { toast } = useToast();
   const { user } = useUserContext();
+
   const { mutateAsync: createPost, isPending: isLoadingCreate } =
     useCreatePost();
+  const { mutateAsync: updatePost, isPending: isLoadingUpdate } =
+    useUpdatePost();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof PostValidation>>({
@@ -49,8 +57,19 @@ const PostForm = ({ post }: PostFormProps) => {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof PostValidation>) {
-    const newPost = await createPost({ ...values, userId: user.id });
+    if (post && action === "Update") {
+      const updatedPost = await updatePost({
+        ...values,
+        postId: post.$id,
+        imageId: post?.imageId,
+        imageUrl: post?.imageUrl,
+      });
+      if (!updatedPost) return toast({ title: "Please try again" });
 
+      return navigate(`/post/${post.$id}`);
+    }
+
+    const newPost = await createPost({ ...values, userId: user.id });
     if (!newPost) return toast({ title: "Please try again" });
 
     navigate("/");
@@ -72,7 +91,7 @@ const PostForm = ({ post }: PostFormProps) => {
                 <Textarea
                   {...field}
                   className="shad-textarea custom-scrollbar"
-                  disabled={isLoadingCreate}
+                  disabled={isLoadingCreate || isLoadingUpdate}
                 />
               </FormControl>
               <FormMessage className="shad-form_message" />
@@ -108,7 +127,7 @@ const PostForm = ({ post }: PostFormProps) => {
                   {...field}
                   type="text"
                   className="shad-input"
-                  disabled={isLoadingCreate}
+                  disabled={isLoadingCreate || isLoadingUpdate}
                 />
               </FormControl>
               <FormMessage className="shad-form_message" />
@@ -129,7 +148,7 @@ const PostForm = ({ post }: PostFormProps) => {
                   {...field}
                   type="text"
                   className="shad-input"
-                  disabled={isLoadingCreate}
+                  disabled={isLoadingCreate || isLoadingUpdate}
                   placeholder="Js, ReactJs, NodeJs"
                 />
               </FormControl>
@@ -146,9 +165,11 @@ const PostForm = ({ post }: PostFormProps) => {
           <Button
             type="submit"
             className="shad-button_primary whitespace-nowrap"
-            disabled={isLoadingCreate}
+            disabled={isLoadingCreate || isLoadingUpdate}
           >
-            Submit
+            {isLoadingCreate || isLoadingUpdate
+              ? "Loading..."
+              : action + " Post"}
           </Button>
         </div>
       </form>
