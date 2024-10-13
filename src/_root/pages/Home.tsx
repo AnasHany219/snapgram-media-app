@@ -1,4 +1,5 @@
 import Loader from "@/components/shared/Loader";
+import PostCard from "@/components/shared/PostCard";
 import { useGetRecentPosts } from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
 
@@ -19,7 +20,7 @@ const Home = () => {
           ) : (
             <ul className="flex flex-col flex-1 w-full gap-8">
               {posts?.documents.map((post: Models.Document) => (
-                <li key={post.$id}>{post.caption}</li>
+                <PostCard post={post} key={post.caption} />
               ))}
             </ul>
           )}
