@@ -1,18 +1,49 @@
+import { useNavigate } from "react-router-dom";
 import { createContext, useContext, useEffect, useState } from "react";
 
-import { IContextType, IUser } from "@/types";
+import { IUser } from "@/types";
 import { getCurrentUser } from "@/lib/appwrite/api";
-import { useNavigate } from "react-router-dom";
-import { INITIAL_STATE, INITIAL_USER } from "@/constants";
+
+export const INITIAL_USER = {
+  id: "",
+  bio: "",
+  name: "",
+  email: "",
+  username: "",
+  imageUrl: "",
+};
+
+export const INITIAL_STATE = {
+  user: INITIAL_USER,
+
+  isPending: false,
+  isAuthenticated: false,
+
+  setUser: () => {},
+  setIsAuthenticated: () => {},
+  checkAuthUser: async () => false as boolean,
+};
+
+export type IContextType = {
+  user: IUser;
+  isPending: boolean;
+  isAuthenticated: boolean;
+  setUser: React.Dispatch<React.SetStateAction<IUser>>;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  checkAuthUser: () => Promise<boolean>;
+};
 
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
-function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
   const [isPending, setIsPending] = useState(false);
+
   const [user, setUser] = useState<IUser>(INITIAL_USER);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const checkAuthUser = async () => {
+    setIsPending(true);
     try {
       const currentAccount = await getCurrentUser();
 
@@ -39,8 +70,6 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     const cookieFallback = localStorage.getItem("cookieFallback");
     if (
@@ -52,7 +81,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     checkAuthUser();
-  }, [navigate]);
+  }, []);
 
   const value = {
     user,

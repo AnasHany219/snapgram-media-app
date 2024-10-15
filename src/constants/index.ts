@@ -48,23 +48,3 @@ export const bottombarLinks = [
     label: "Create",
   },
 ];
-
-export const INITIAL_USER = {
-  id: "",
-  bio: "",
-  name: "",
-  email: "",
-  username: "",
-  imageUrl: "",
-};
-
-export const INITIAL_STATE = {
-  user: INITIAL_USER,
-
-  isPending: false,
-  isAuthenticated: false,
-
-  setUser: () => {},
-  setIsAuthenticated: () => {},
-  checkAuthUser: async () => false as boolean,
-};

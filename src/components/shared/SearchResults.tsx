@@ -1,5 +1,25 @@
-const SearchResults = () => {
-  return <div>SearchResults</div>;
+import { Models } from "appwrite";
+
+import Loader from "./Loader";
+import GridPostList from "@/_root/pages/GridPostList";
+
+type SearchResultsProps = {
+  isSearchFetching: boolean;
+  searchedPosts: Models.Document[];
+};
+
+const SearchResults = ({
+  searchedPosts,
+  isSearchFetching,
+}: SearchResultsProps) => {
+  if (isSearchFetching) return <Loader />;
+
+  if (searchedPosts && searchedPosts.documents.length > 0)
+    return <GridPostList posts={searchedPosts.documents} />;
+
+  return (
+    <p className="w-full mt-10 text-center text-light-4">No results found</p>
+  );
 };
 
 export default SearchResults;
